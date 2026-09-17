@@ -24,13 +24,15 @@ def load_data():
 
 df = load_data()
 
+# ---------------------------------------------------------
 # 1. 장르별 영화 편수 (도넛 그래프)
+# ---------------------------------------------------------
 st.subheader("1. 장르별 영화 편수")
 
 genre_counts = df["genre_first"].value_counts().reset_index()
 genre_counts.columns = ["장르", "영화 편수"]
 
-fig = px.pie(
+fig_donut = px.pie(
     genre_counts,
     values="영화 편수",
     names="장르",
@@ -39,16 +41,44 @@ fig = px.pie(
 )
 
 # 마우스오버 시 편수와 비율 표기
-fig.update_traces(
+fig_donut.update_traces(
     hovertemplate="<b>%{label}</b><br>영화 편수: %{value}편<br>비율: %{percent}"
 )
 
-st.plotly_chart(fig, use_container_width=True)
+st.plotly_chart(fig_donut, use_container_width=True)
 
-# 시각화 해석 구역
+# 1번 그래프 해석 구역
 st.divider()
 st.markdown("##### 💡 이 그래프로 알 수 있는 것")
 st.caption(
     "박스오피스 상위권에 진입한 영화 중 어떤 장르가 가장 큰 비중을 차지하는지 분포 현황을 한눈에 비교할 수 있습니다."
+)
+st.divider()
+
+# ---------------------------------------------------------
+# 2. 장르 및 영화별 총 관객수 분포 (트리맵)
+# ---------------------------------------------------------
+st.subheader("2. 장르 및 영화별 총 관객수 분포")
+
+fig_treemap = px.treemap(
+    df,
+    path=[px.Constant("전체"), "genre_first", "movieNm"],
+    values="total_audi",
+    title="장르 및 영화별 총 관객수 (칸 크기: 총 관객수)",
+)
+
+# 마우스오버 시 영화명과 총 관객수 표기
+fig_treemap.update_traces(
+    hovertemplate="<b>%{label}</b><br>총 관객수: %{value:,}명",
+    root_color="lightgrey",
+)
+
+st.plotly_chart(fig_treemap, use_container_width=True)
+
+# 2번 그래프 해석 구역
+st.divider()
+st.markdown("##### 💡 이 그래프로 알 수 있는 것")
+st.caption(
+    "장르 내에서 특정 흥행작이 차지하는 관객 동원력의 크기를 한눈에 비교하고, 어떤 영화가 장르 전체의 관객수를 견인했는지 파악할 수 있습니다."
 )
 st.divider()
