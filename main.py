@@ -150,3 +150,40 @@ st.caption(
     "초기 스크린 확보가 최종 흥행 스코어에 큰 영향을 미침을 알 수 있습니다."
 )
 st.divider()
+
+# ---------------------------------------------------------
+# 5. 주요 장르별 총 관객수 분포 (박스플롯)
+# ---------------------------------------------------------
+st.subheader("5. 주요 장르별 총 관객수 분포 (영화 10편 이상)")
+
+# 영화가 10편 이상인 장르만 필터링
+genre_counts_series = df["genre_first"].value_counts()
+top_genres = genre_counts_series[genre_counts_series >= 10].index
+df_top_genres = df[df["genre_first"].isin(top_genres)]
+
+fig_box = px.box(
+    df_top_genres,
+    x="genre_first",
+    y="total_audi",
+    color="genre_first",
+    hover_name="movieNm",
+    points="outliers",  # 이상치 점 표시
+    title="영화 10편 이상 장르별 총 관객수 상자 그림",
+    labels={"genre_first": "장르", "total_audi": "총 관객수"},
+)
+
+# 마우스오버 설정
+fig_box.update_traces(
+    hovertemplate="<b>%{hovertext}</b><br>총 관객수: %{y:,}명"
+)
+
+st.plotly_chart(fig_box, use_container_width=True)
+
+# 5번 그래프 해석 구역
+st.divider()
+st.markdown("##### 💡 이 그래프로 알 수 있는 것")
+st.caption(
+    "주요 장르별 관객수 중앙값과 변동 범위를 한눈에 비교할 수 있으며, "
+    "상자 밖의 이상치 점들을 통해 해당 장르 내에서 기록적인 대흥행을 거둔 작품을 직관적으로 식별할 수 있습니다."
+)
+st.divider()
