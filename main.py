@@ -231,19 +231,25 @@ st.caption(
 st.divider()
 
 # ---------------------------------------------------------
-# 7. 국가 및 장르별 영화 편수 (선버스트 그래프)
+# 7. 제작 국가 및 장르별 영화 편수 (선버스트)
 # ---------------------------------------------------------
-st.subheader("7. 제작 국가 및 장르별 영화 편수 계층 구조")
+st.subheader("7. 제작 국가 및 장르별 영화 편수 분포")
 
-fig_sunburst = px.sunburst(
-    df,
-    path=["nation", "genre_first"],
-    title="제작 국가 및 장르별 영화 편수 (선버스트)",
+# 국가 및 장르별 영화 편수 집계
+df_nation_genre = (
+    df.groupby(["nation", "genre_first"]).size().reset_index(name="count")
 )
 
-# 마우스오버 시 영화 편수 및 비율 표기
+fig_sunburst = px.sunburst(
+    df_nation_genre,
+    path=["nation", "genre_first"],
+    values="count",
+    title="제작 국가 및 장르 계층 구조 (칸 크기: 영화 편수)",
+)
+
+# 마우스오버 설정
 fig_sunburst.update_traces(
-    hovertemplate="<b>%{label}</b><br>영화 편수: %{value}편<br>비율: %{percentParent:.1%}"
+    hovertemplate="<b>%{label}</b><br>영화 편수: %{value}편"
 )
 
 st.plotly_chart(fig_sunburst, use_container_width=True)
@@ -252,6 +258,6 @@ st.plotly_chart(fig_sunburst, use_container_width=True)
 st.divider()
 st.markdown("##### 💡 이 그래프로 알 수 있는 것")
 st.caption(
-    "제작 국가별 전체 비중과 각 국가 내에서 주를 이루는 대표 장르의 구성 및 비율을 다층 구조로 한눈에 파악할 수 있습니다."
+    "제작 국가별로 주를 이루는 영화 장르의 세부 비중을 계층적으로 파악할 수 있으며, 국가에 따라 선호되거나 주력 생산되는 장르 구성의 차이를 확인할 수 있습니다."
 )
 st.divider()
