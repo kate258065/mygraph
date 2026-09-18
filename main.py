@@ -19,10 +19,8 @@ def load_data():
     # 장르 전처리: 첫 번째 장르만 추출 (예: '액션|드라마' -> '액션')
     df["genre_first"] = df["genre"].fillna("").apply(lambda x: x.split("|")[0])
 
-    # openDt(개봉일)를 날짜 데이터(datetime) 타입으로 변환
-    df["openDt_parsed"] = pd.to_datetime(
-        df["openDt"].astype(str), format="%Y%m%d", errors="coerce"
-    )
+    # 개봉일(openDt) 날짜형 변환 (여덟 자리 숫자 -> datetime)
+    df["openDt_parsed"] = pd.to_datetime(df["openDt"].astype(str), format="%Y%m%d", errors="coerce")
 
     return df
 
@@ -268,30 +266,35 @@ st.caption(
 st.divider()
 
 # ---------------------------------------------------------
-# 8. 개봉일과 개봉 첫 주 관객 수의 관계 (막대그래프)
+# 8. 개봉일과 개봉 첫 주 관객 수는 관련이 있을까? (산점도)
 # ---------------------------------------------------------
 st.subheader("8. 개봉일과 개봉 첫 주 관객 수는 관련이 있을까?")
 
-fig_bar_date = px.bar(
-    df.sort_values("openDt_parsed"),
+fig_scatter_open = px.scatter(
+    df,
     x="openDt_parsed",
     y="first_week_audi",
+    color="genre_first",
     hover_name="movieNm",
     title="개봉일과 개봉 첫 주 관객 수는 관련이 있을까?",
-    labels={"openDt_parsed": "개봉일", "first_week_audi": "개봉 첫 주 관객수"},
+    labels={
+        "openDt_parsed": "개봉일",
+        "first_week_audi": "개봉 첫 주 관객수",
+        "genre_first": "장르",
+    },
 )
 
-# 마우스오버 시 영화명, 개봉일, 개봉 첫 주 관객수 표기
-fig_bar_date.update_traces(
+# 마우스오버 시 표시 형태 지정
+fig_scatter_open.update_traces(
     hovertemplate="<b>%{hovertext}</b><br>개봉일: %{x|%Y-%m-%d}<br>개봉 첫 주 관객수: %{y:,}명"
 )
 
-st.plotly_chart(fig_bar_date, use_container_width=True)
+st.plotly_chart(fig_scatter_open, use_container_width=True)
 
 # 8번 그래프 해석 구역
 st.divider()
 st.markdown("##### 💡 이 그래프로 알 수 있는 것")
 st.caption(
-    "특정 시기(성수기 방학, 명절, 연휴 시즌 등)에 개봉한 영화들이 상대적으로 높은 첫 주 관객수를 기록하는 경향을 보여주어, 개봉 시점의 계절성과 성수기 여부가 초기 관객동원에 영향을 미침을 알 수 있습니다."
+    "특정 성수기 시즌(여름/겨울 방학, 명절 연휴 등)에 개봉한 영화들이 첫 주에 높은 관객 동원력을 보이는 경향을 추적할 수 있습니다."
 )
 st.divider()
